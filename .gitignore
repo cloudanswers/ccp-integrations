@@ -57,3 +57,5 @@ venv
 .venv
 virtualenv
 
+# pycharm
+.idea
