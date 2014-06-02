@@ -2,7 +2,8 @@ from os import getenv
 import pivotal
 import toggl
 
-if __name__ == '__main__':
+
+def sync():
     pivotal_stories = pivotal.get_stories(getenv('PIVOTALTRACKER_PROJECT_ID'))
     toggl_projects = toggl.get_projects(getenv('TOGGL_WORKSPACE_ID'))
 
@@ -23,3 +24,6 @@ if __name__ == '__main__':
             # TODO: create a new one
             new_project_name = pivotal_story.get('name') + project_marker
             toggl.create_project(new_project_name, getenv('TOGGL_WORKSPACE_ID'))
+
+if __name__ == '__main__':
+    sync()
