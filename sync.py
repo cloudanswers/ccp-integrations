@@ -3,7 +3,17 @@ import pivotal
 import toggl
 
 
+def __toggl_client_id(pivotal_story, toggl_clients):
+    def clean(x):
+        return x.strip().lower()
+    for label in pivotal_story.get('labels'):
+        for client in toggl_clients:
+            if clean(label.get('name')) == clean(client.get('name')):
+                return client.get('id')
+
+
 def sync():
+    toggl_clients = toggl.get_clients(getenv('TOGGL_WORKSPACE_ID'))
     pivotal_stories = pivotal.get_stories(getenv('PIVOTALTRACKER_PROJECT_ID'))
     toggl_projects = toggl.get_projects(getenv('TOGGL_WORKSPACE_ID'))
 
@@ -21,9 +31,11 @@ def sync():
                 existing_found = True
                 break
         if not existing_found:
-            # TODO: create a new one
             new_project_name = pivotal_story.get('name') + project_marker
-            toggl.create_project(new_project_name, getenv('TOGGL_WORKSPACE_ID'))
+            client_id = __toggl_client_id(pivotal_story, toggl_clients)
+            toggl.create_project(new_project_name,
+                                 getenv('TOGGL_WORKSPACE_ID'),
+                                 client_id)
 
 if __name__ == '__main__':
     sync()

@@ -37,21 +37,30 @@ def get_projects(workspace_id):
         return res.json()
 
 
-def create_project(name, workspace_id):
+def create_project(name, workspace_id, client_id):
     # TODO: associate with specific users
-    # TODO: associate with a client based on pivotal tag
     url = '/api/v8/projects'
     data = {
         'project': {
             'name': name,
             'wid': workspace_id,
+            'cid': client_id,
             'is_private': False
         }
     }
-    print json.dumps(data)
     res = post(url=url, data=json.dumps(data))
     if 200 <= res.status_code < 300:
         return res.json()
     else:
         raise Exception('Error creating project (%s): %s, %s' %
                         (url, res.status_code, res.content))
+
+
+def get_clients(workspace_id):
+    url = '/api/v8/workspaces/%s/clients' % workspace_id
+    res = get(url)
+    if res.status_code != 200:
+        raise Exception('Error getting Toggl projects (%s): %s, %s' %
+                        (url, res.status_code, res.content))
+    else:
+        return res.json()
