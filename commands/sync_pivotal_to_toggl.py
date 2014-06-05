@@ -36,6 +36,3 @@ def sync():
             toggl.create_project(new_project_name,
                                  getenv('TOGGL_WORKSPACE_ID'),
                                  client_id)
-
-if __name__ == '__main__':
-    sync()

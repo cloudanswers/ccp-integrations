@@ -1,4 +1,4 @@
-import sync
+from commands.sync_pivotal_to_toggl import sync
 from flask import Blueprint
 app = Blueprint('pivotaltracker_webhook', __name__)
 
