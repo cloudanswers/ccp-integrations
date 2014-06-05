@@ -3,7 +3,7 @@ from flask import Flask
 app = Flask(__name__)
 
 # blueprints
-app.register_blueprint(webhooks.pivotaltracker)
+app.register_blueprint(webhooks.pivotaltracker.app)
 
 # root url
 @app.route('/')
