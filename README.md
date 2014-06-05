@@ -1,10 +1,34 @@
-pivotaltracker-toggl-integration
-================================
+ccp-integrations
+================
 
-Sync active PivotalTracker stories to Toggl so we can log our time.  It runs on heroku with an hourly scheduled job and a webhook from PivotalTracker that will execute the sync any time a change in PivotalTracker happens.
+Our internal integrations for our business systems.  The following business processes are implemented:
+
+1.  Create Toggl Project when PivotalTracker Story is started so we can log our time on the task
+
+
+Dev Setup
+---------
+
+    $ git clone <repo>
+    $ virtualenv venv
+    $ . ./venv/bin/activate
+    $ pip install -r requirements.txt
+    $ #### start the dev web server
+    $ python app.py
+
 
 Todo
 ----
 
-1. Link Toggl Projects to Clients based on PivotalTracker Tag that matches 
-1. Make it be more selective about when it runs the sync (not when just editing something in the icebox)
+1. Add process for Freshbooks Project to PivotalTracker Epic
+1. Add process for Freshbooks Project to Salesforce (maybe optional since already sync'd via appx package)
+1. Add process for Freshbooks Project to Hipchat notification
+1. Add process for Odesk * to Salesforce *
+1. Add process for Toggl Time Entries to Freshbooks Time Entries
+1. Update process for PivotalTracker Story to Toggl Project to be more selective about when it runs the sync, currently every time anything is edited
+
+
+License
+-------
+
+Affero GPL

@@ -38,7 +38,6 @@ def get_projects(workspace_id):
 
 
 def create_project(name, workspace_id, client_id):
-    # TODO: associate with specific users
     url = '/api/v8/projects'
     data = {
         'project': {

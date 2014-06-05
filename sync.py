@@ -1,6 +1,6 @@
 from os import getenv
-import pivotal
-import toggl
+from services import pivotal
+from services import toggl
 
 
 def __toggl_client_id(pivotal_story, toggl_clients):
