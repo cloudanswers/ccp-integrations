@@ -3,8 +3,8 @@ from flask import Blueprint
 app = Blueprint('pivotaltracker_webhook', __name__)
 
 
-@app.route("/pivotaltracker/webhook", methods=['POST'])
+@app.route("/webhooks/pivotaltracker", methods=['POST'])
 def pivotaltracker_webhook():
     # FIXME only sync the object that was modified, currently doing full sync
-    sync.sync()
+    sync()
     return "ok"
