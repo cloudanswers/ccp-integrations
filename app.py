@@ -1,9 +1,9 @@
-import webhooks.pivotaltracker
 from flask import Flask
 app = Flask(__name__)
 
-# blueprints
+import webhooks
 app.register_blueprint(webhooks.pivotaltracker.app)
+app.register_blueprint(webhooks.freshbooks.app)
 
 # root url
 @app.route('/')
