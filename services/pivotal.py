@@ -18,10 +18,16 @@ def get(url):
     return get_session().get(url)
 
 
-def get_stories(project_id):
-    url = '/services/v5/projects/%s/stories?filter=state:delivered,finished,rejected,started&limit=500' % project_id
-    res = get(url)
+def get_stories(project_id, ids=None):
+    params = {'limit': 500}
+    if ids:
+        params['filter'] = 'id:%s' % ','.join(ids)
+    url = '/services/v5/projects/%s/stories' % project_id
+    res = get(url, params=params)
     if res.status_code == 200:
+        if res.headers.get('X-Tracker-Pagination-Total'):
+            total = res.headers.get('X-Tracker-Pagination-Total')
+            offset = res.headers.get('X-Tracker-Pagination-Total')
         return res.json()
     else:
         raise Exception('Error getting stories (%s): %s, %s' %
