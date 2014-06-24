@@ -30,8 +30,10 @@ def sync(pivotal_ids=None):
 
     if pivotal_ids:
         logging.info('filtering pivotal stories to %s' % pivotal_ids)
+        logging.debug('all pivotal stories: %s' % pivotal_stories)
         pivotal_stories = filter(lambda x: x.get('id') in pivotal_ids,
                                  pivotal_stories)
+        logging.debug('filtered pivotal stories: %s' % pivotal_stories)
 
     for pivotal_story in pivotal_stories:
         logging.info('processing pivotal story %s' % pivotal_story.get('id'))
