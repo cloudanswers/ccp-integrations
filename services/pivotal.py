@@ -12,10 +12,10 @@ def get_session():
     return session
 
 
-def get(url):
+def get(url, params):
     if not url.startswith('http'):
         url = "https://www.pivotaltracker.com/" + url
-    return get_session().get(url)
+    return get_session().get(url, params=params)
 
 
 def get_stories(project_id, ids=None):
