@@ -19,7 +19,7 @@ def __toggl_client_id(pivotal_story, toggl_clients):
                 return client.get('id')
 
 
-def sync():
+def sync(pivotal_ids=None):
     logging.info('starting sync of pivotal to toggl')
     toggl_clients = toggl.get_clients(getenv('TOGGL_WORKSPACE_ID'))
     logging.info('retrieved %s toggl clients' % len(toggl_clients))
@@ -27,6 +27,11 @@ def sync():
     logging.info('retrieved %s pivotal stories' % len(pivotal_stories))
     toggl_projects = toggl.get_projects(getenv('TOGGL_WORKSPACE_ID'))
     logging.info('retrieved %s toggl projects' % len(toggl_projects))
+
+    if pivotal_ids:
+        logging.info('filtering pivotal stories to %s' % pivotal_ids)
+        pivotal_stories = filter(lambda x: x.get('id') in pivotal_ids,
+                                 pivotal_stories)
 
     for pivotal_story in pivotal_stories:
         logging.info('processing pivotal story %s' % pivotal_story.get('id'))
