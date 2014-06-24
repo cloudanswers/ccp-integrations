@@ -39,10 +39,12 @@ def sync(pivotal_ids=None):
     for pivotal_story in pivotal_stories:
         logging.info('processing pivotal story %s' % pivotal_story.get('id'))
 
-        if pivotal_story.get('kind') != 'story':
+        if pivotal_story.get('story_type') not in ('feature', 'bug', 'chore'):
+            logging.info('not a target story type, skipping')
             continue
 
-        if pivotal_story.get('current_state') == 'accepted':
+        if pivotal_story.get('current_state') in ('accepted', 'unscheduled'):
+            logging.info('not a target story state, skipping')
             continue
 
         existing_found = False
