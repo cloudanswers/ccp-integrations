@@ -34,7 +34,7 @@ def put(url, data):
 
 
 def get_projects(workspace_id):
-    url = '/api/v8/workspaces/%s/projects' % workspace_id
+    url = '/api/v8/workspaces/%s/projects?active=both' % workspace_id
     res = get(url)
     if res.status_code != 200:
         raise Exception('Error getting Toggl projects (%s): %s, %s' %
@@ -43,18 +43,11 @@ def get_projects(workspace_id):
         return res.json()
 
 
-def save_project(workspace_id, client_id, *args, **kwargs):
+def save_project(project_data):
     url = '/api/v8/projects'
     data = {
-        'project': {
-            'wid': workspace_id,
-            'cid': client_id,
-            'is_private': False,
-        }
+        'project': project_data
     }
-    if kwargs:
-        for (k, v) in kwargs.items():
-            data['project'][k] = v
     if data.get('project').get('id'):
         url += '/%s' % data.get('project').get('id')
         res = put(url=url, data=json.dumps(data))

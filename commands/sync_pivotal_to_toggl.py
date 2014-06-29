@@ -40,14 +40,17 @@ def sync(pivotal_ids=None):
         logging.info('processing pivotal story %s' % pivotal_story.get('id'))
         project_marker = ' #%s' % pivotal_story.get('id')
         new_project_name = pivotal_story.get('name') + project_marker
-        client_id = __toggl_client_id(pivotal_story, toggl_clients)
+        new_project = {
+            'wid': int(getenv('TOGGL_WORKSPACE_ID')),
+            'cid': __toggl_client_id(pivotal_story, toggl_clients),
+            'name': new_project_name,
+            'estimated_hours': pivotal_story.get('estimate'),
+            'active': True,
+            'is_private': False,
+        }
 
         if pivotal_story.get('story_type') not in ('feature', 'bug', 'chore'):
             logging.info('not a target story type, skipping')
-            continue
-
-        if pivotal_story.get('current_state') in ('accepted', 'unscheduled'):
-            logging.info('not a target story state, skipping')
             continue
 
         existing_found = None
@@ -57,33 +60,27 @@ def sync(pivotal_ids=None):
                 break
 
         if existing_found:
-            logging.info('existing found')
-            compare = (
-                ('estimate', 'estimated_hours'),
-                ('name', 'name'),
-            )
-            need_update = False
-            for (l, r) in compare:
-                left = pivotal_story.get(l)
-                right = existing_found.get(r)
-                if r == 'name' and right.endswith(project_marker):
-                    right = right[:-1*len(project_marker)]
-                if pivotal_story.get(left) != existing_found.get(right):
-                    logging.info('diff in %s "%s" vs "%s"' % (l, left, right))
-                    need_update = True
-                    break
-            if need_update:
-                logging.info('story needs update')
-                toggl.save_project(
-                    getenv('TOGGL_WORKSPACE_ID'),
-                    client_id,
-                    name=new_project_name,
-                    estimated_hours=pivotal_story.get('estimate'),
-                    id=existing_found.get('id')
-                )
-        else:
-            toggl.save_project(
-                getenv('TOGGL_WORKSPACE_ID'),
-                client_id,
-                name=new_project_name,
-                estimated_hours=pivotal_story.get('estimate'))
+            new_project['id'] = existing_found.get('id')
+            new_project['active'] = existing_found.get('active')
+
+        if pivotal_story.get('current_state') == 'accepted':
+            if not existing_found or not existing_found.get('active'):
+                logging.debug('already archived, skipping')
+                continue
+            new_project['active'] = False
+
+        if pivotal_story.get('current_state') == 'unscheduled':
+            logging.info('not a target story state, skipping')
+            continue
+
+        def need_update(l, r):
+            for (k, v) in l.items():
+                if r.get(k) != v:
+                    logging.debug('%s different, %s vs %s' % (k, v, r.get(v)))
+                    return True
+
+        if existing_found and not need_update(new_project, existing_found):
+            logging.info('records in sync, no update')
+            continue
+        logging.info('going to update %s vs %s' % (new_project, existing_found))
+        toggl.save_project(new_project)
