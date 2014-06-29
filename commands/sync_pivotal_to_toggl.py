@@ -38,6 +38,9 @@ def sync(pivotal_ids=None):
 
     for pivotal_story in pivotal_stories:
         logging.info('processing pivotal story %s' % pivotal_story.get('id'))
+        project_marker = ' #%s' % pivotal_story.get('id')
+        new_project_name = pivotal_story.get('name') + project_marker
+        client_id = __toggl_client_id(pivotal_story, toggl_clients)
 
         if pivotal_story.get('story_type') not in ('feature', 'bug', 'chore'):
             logging.info('not a target story type, skipping')
@@ -47,19 +50,40 @@ def sync(pivotal_ids=None):
             logging.info('not a target story state, skipping')
             continue
 
-        existing_found = False
+        existing_found = None
         for toggl_project in toggl_projects:
-            project_marker = ' #%s' % pivotal_story.get('id')
             if project_marker in toggl_project.get('name'):
-                existing_found = True
+                existing_found = toggl_project
                 break
 
         if existing_found:
-            logging.info('existing found, skipping')
-
-        if not existing_found:
-            new_project_name = pivotal_story.get('name') + project_marker
-            client_id = __toggl_client_id(pivotal_story, toggl_clients)
-            toggl.create_project(new_project_name,
-                                 getenv('TOGGL_WORKSPACE_ID'),
-                                 client_id)
+            logging.info('existing found')
+            compare = (
+                ('estimate', 'estimated_hours'),
+                ('name', 'name'),
+            )
+            need_update = False
+            for (l, r) in compare:
+                left = pivotal_story.get(l)
+                right = existing_found.get(r)
+                if r == 'name' and right.endswith(project_marker):
+                    right = right[:-1*len(project_marker)]
+                if pivotal_story.get(left) != existing_found.get(right):
+                    logging.info('diff in %s "%s" vs "%s"' % (l, left, right))
+                    need_update = True
+                    break
+            if need_update:
+                logging.info('story needs update')
+                toggl.save_project(
+                    getenv('TOGGL_WORKSPACE_ID'),
+                    client_id,
+                    name=new_project_name,
+                    estimated_hours=pivotal_story.get('estimate'),
+                    id=existing_found.get('id')
+                )
+        else:
+            toggl.save_project(
+                getenv('TOGGL_WORKSPACE_ID'),
+                client_id,
+                name=new_project_name,
+                estimated_hours=pivotal_story.get('estimate'))

@@ -27,6 +27,12 @@ def post(url, data):
     return get_session().post(url, data)
 
 
+def put(url, data):
+    if not url.startswith('http'):
+        url = 'https://www.toggl.com' + url
+    return get_session().put(url, data)
+
+
 def get_projects(workspace_id):
     url = '/api/v8/workspaces/%s/projects' % workspace_id
     res = get(url)
@@ -37,17 +43,23 @@ def get_projects(workspace_id):
         return res.json()
 
 
-def create_project(name, workspace_id, client_id):
+def save_project(workspace_id, client_id, *args, **kwargs):
     url = '/api/v8/projects'
     data = {
         'project': {
-            'name': name,
             'wid': workspace_id,
             'cid': client_id,
-            'is_private': False
+            'is_private': False,
         }
     }
-    res = post(url=url, data=json.dumps(data))
+    if kwargs:
+        for (k, v) in kwargs.items():
+            data['project'][k] = v
+    if data.get('project').get('id'):
+        url += '/%s' % data.get('project').get('id')
+        res = put(url=url, data=json.dumps(data))
+    else:
+        res = post(url=url, data=json.dumps(data))
     if 200 <= res.status_code < 300:
         return res.json()
     else:
