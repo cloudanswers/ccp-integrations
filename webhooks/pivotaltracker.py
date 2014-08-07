@@ -10,5 +10,5 @@ def pivotaltracker_webhook():
     data = json.loads(request.data)
     story_ids = map(lambda x: x.get('id'),
                     data.get('primary_resources'))
-    sync(story_ids)
+    sync(story_ids, pivotal_project_id=data.get('project').get('id'))
     return "ok"
