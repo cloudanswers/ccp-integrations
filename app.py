@@ -7,6 +7,7 @@ logging.basicConfig(level=logging.DEBUG)
 import webhooks
 app.register_blueprint(webhooks.pivotaltracker.app)
 app.register_blueprint(webhooks.freshbooks.app)
+app.register_blueprint(webhooks.helpscout.app)
 
 # root url
 @app.route('/')
