@@ -3,6 +3,6 @@ import time
 app = Blueprint('helpscout_webhook', __name__)
 
 
-@app.route("/webhooks/helpscout", methods=['POST'])
+@app.route("/webhooks/helpscout_app_callback", methods=['POST'])
 def helpscout_webhook():
     return jsonify({"html": "<b>test</b> test %s" % time.gmtime()})
